@@ -1,70 +1,105 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, StatusBar } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { Tabs, useNavigation } from 'expo-router';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function HomeScreen() {
+  const colorScheme = useColorScheme();
+  const navigation = useNavigation();
+  const [url, setUrl] = useState('https://temankos.store/?v=d62a8d1683e6');
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Refresh WebView when screen focus is gained
+      setUrl((prevUrl) => prevUrl + '&refresh=' + new Date().getTime());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleTabPress = (newUrl: string) => {
+    setUrl(newUrl);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#252530" />
+      <WebView source={{ uri: url }} style={styles.webview} />
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: '#252530',
+          tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
+          tabBarStyle: {
+            backgroundColor: Colors[colorScheme ?? 'light'].background,
+            paddingBottom: 5,
+            paddingTop: 5,
+            height: 55,
+          },
+          headerShown: false,
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Temankos',
+            headerTitleAlign: 'center',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            ),
+          }}
+          listeners={{
+            tabPress: () => handleTabPress('https://temankos.store/?page_id=13'),
+          }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Tabs.Screen
+          name="explore"
+          options={{
+            title: 'Cari Kost',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
+            ),
+          }}
+          listeners={{
+            tabPress: () => handleTabPress('https://temankos.store/explore'),
+          }}
+        />
+        <Tabs.Screen
+          name="favorites"
+          options={{
+            title: 'Favorit',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'heart' : 'heart-outline'} color={color} />
+            ),
+          }}
+          listeners={{
+            tabPress: () => handleTabPress('https://temankos.store/favorites'),
+          }}
+        />
+        <Tabs.Screen
+          name="account"
+          options={{
+            title: 'Akun',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+            ),
+          }}
+          listeners={{
+            tabPress: () => handleTabPress('https://temankos.store/account'),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    marginTop: 1, // Adjust the margin value as needed
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  webview: {
+    flex: 1,
   },
 });

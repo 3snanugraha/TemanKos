@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation } from '@react-navigation/native';
 
-export default function TabTwoScreen() {
+export default function AccountScreen() {
   const [refreshKey, setRefreshKey] = useState(0);
   const navigation = useNavigation();
 
@@ -19,7 +19,7 @@ export default function TabTwoScreen() {
     <View style={styles.container}>
       <WebView
         key={refreshKey} // Use refresh key as key for WebView
-        source={{ uri: 'https://temankos.store/?post_type=product' }}
+        source={{ uri: 'https://temankos.store/?page_id=13' }}
         style={styles.webview}
       />
     </View>
